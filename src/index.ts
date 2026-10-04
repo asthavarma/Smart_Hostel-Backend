@@ -27,10 +27,11 @@ const PORT = process.env.PORT || 5000;
 // Security Middlewares
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({
-  origin: '*', // Adjust to specific frontend domain in production
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
