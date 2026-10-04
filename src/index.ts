@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import path from 'path';
+import fs from 'fs';
 
 // Import Routes
 import authRoutes from './routes/auth.routes';
@@ -123,16 +124,25 @@ app.get('/api/health', async (_req: Request, res: Response) => {
   });
 });
 
-// Serve frontend static files in production
+// Serve frontend static files if dist directory exists locally
 const frontendDistPath = path.join(__dirname, '../../frontend/dist');
-app.use(express.static(frontendDistPath));
+if (fs.existsSync(frontendDistPath)) {
+  app.use(express.static(frontendDistPath));
+}
 
-// Catch-all route to serve React SPA index.html
+// Catch-all route to handle root and non-API endpoints
 app.get('*', (req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
     next();
-  } else {
+  } else if (fs.existsSync(path.join(frontendDistPath, 'index.html'))) {
     res.sendFile(path.join(frontendDistPath, 'index.html'));
+  } else {
+    res.json({
+      name: 'Claria University Hostel Management API',
+      status: 'online',
+      health: '/api/health',
+      documentation: 'REST API Service for Smart Hostel Management System'
+    });
   }
 });
 
